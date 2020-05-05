@@ -42,8 +42,8 @@ gdt_end:
 section .text
 global _start
 _start:
-    cli
     ; load gdt
+    cli
     lgdt [gdt_start]
     jmp 0x8:reload_cs
 reload_cs:
