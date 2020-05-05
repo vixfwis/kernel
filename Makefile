@@ -1,7 +1,13 @@
 all: kernel.bin bootloader.bin
 
+qemu-gdb: kernel.bin
+	gdb -ex 'target remote localhost:1234' -ex 'file kernel.bin'
+
 qemu: kernel.bin
-	qemu-system-i386 -kernel kernel.bin
+	qemu-system-i386 -kernel kernel.bin -s
+
+qemu-paused: kernel.bin
+	qemu-system-i386 -kernel kernel.bin -s -S
 
 kernel.bin: kernel.o boot.o linker.ld
 	gcc -m32 -T linker.ld -o kernel.bin -ffreestanding -nostdlib -O2 kernel.o boot.o -lgcc
@@ -21,5 +27,5 @@ qemu-bl: bootloader.bin
 qemu-bl-paused: bootloader.bin
 	qemu-system-i386 -drive file=bootloader.bin,format=raw -s -S
 
-gdb: all
-	gdb -ex 'target remote localhost:1234'
+qemu-bl-gdb: bootloader.bin
+	gdb -ex 'target remote localhost:1234' -ex 'file bootloader.bin'
