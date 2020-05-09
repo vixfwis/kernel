@@ -1,5 +1,5 @@
-MBALIGN  equ  1 << 0            ; align loaded modules on page boundaries
-MEMINFO  equ  1 << 1            ; provide memory map
+MBALIGN  equ  1 << 0
+MEMINFO  equ  1 << 1
 FLAGS    equ  MBALIGN | MEMINFO
 MAGIC    equ  0x1BADB002
 CHECKSUM equ -(MAGIC + FLAGS)
@@ -42,10 +42,13 @@ gdt_end:
 section .text
 global _start
 _start:
+    ; save multiboot header
+    mov ecx, eax
+    mov edx, ebx
     ; load gdt
     cli
     lgdt [gdt_start]
-    jmp 0x8:reload_cs
+    jmp 8:reload_cs
 reload_cs:
     mov ax, 0x10
     mov ds, ax
@@ -53,17 +56,11 @@ reload_cs:
     mov ss, ax
     mov gs, ax
     mov fs, ax
-    ; disable cursor
-    mov dx, 0x3D4
-    mov al, 0xA
-    out dx, al
-    inc dx
-    mov al, 0x20
-    out dx, al
     ; load stack
     mov esp, stack_top
     ; run kmain
-    sti
+    push ecx
+    push edx
     extern kmain
     call kmain
     cli
