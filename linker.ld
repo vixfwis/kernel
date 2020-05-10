@@ -15,5 +15,5 @@ SECTIONS {
         *(COMMON)
         *(.bss)
     }
-    sunset = ALIGN(4K);
+    sunrise = ALIGN(4K);
 }

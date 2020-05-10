@@ -55,4 +55,8 @@ inline void cli(void) {
     __asm__("cli");
 }
 
+inline void hlt(void) {
+    __asm__("hlt");
+}
+
 #endif
