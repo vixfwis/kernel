@@ -1,4 +1,4 @@
-CFLAGS = -m32 -std=gnu99 -ffreestanding -nostdlib -O2 -Wall -Wextra
+CFLAGS = -m32 -std=gnu99 -ffreestanding -fno-pic -nostdlib -O2 -Wall -Wextra
 
 all: kernel.bin
 
