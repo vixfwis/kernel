@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include "inline.h"
 #include "interrupts.h"
+#include <limits.h>
 
 extern void* sunrise;
 
@@ -28,60 +29,52 @@ void write(const char* msg){
     }
 }
 
-char* int2str(int32_t num, char* str, uint32_t base){
-    bool sign = false;
-    if (num < 0) {
-        sign = true;
-        num *= -1;
-    }
-    uint64_t baseofs = base;
-    uint32_t mod;
-    uint64_t tmp;
-    uint8_t len = 0;
-    do {
-        len++;
-        tmp = 1;
-        for (uint8_t i = 0; i < len; ++i)
-            tmp *= baseofs;
-    } while(num >= tmp);
-    if (sign)
-        len++;
-    str[len] = 0;
-    do {
-        mod = num % baseofs;
-        uint8_t c = (uint8_t)((mod)/(baseofs/base)+48);
-        if (c > '9')
-            c += 7;
-        str[--len] = c;
-        num -= mod;
-        baseofs *= base;
-    } while(len != 0);
-    str[0] = '-';
-    return str;
+
+char* int2str(int32_t num, char * str, uint32_t base) {
+	uint32_t min_based_over_num = base; 
+	uint8_t j = 0;
+
+	if (num < 0) { 
+		str[j++] = '-'; 
+		num = -num; 
+	}
+
+	while (min_based_over_num <= (uint32_t) num && 
+		INT32_MAX / base > min_based_over_num) 
+		min_based_over_num *= base;
+	if ((uint32_t) num <= min_based_over_num)
+		min_based_over_num /= base;	
+
+	while (min_based_over_num > 0) { 
+		int32_t tmp = num / min_based_over_num;
+		num = num % min_based_over_num; 
+		str[j++] = tmp > 9 ? tmp + '0' + 7 : tmp + '0'; 
+		min_based_over_num /= base; 
+	}
+	str[j] = 0;
+	
+	return str;
 }
 
 char* uint2str(uint32_t num, char* str, uint32_t base){
-    uint64_t baseofs = base;
-    uint32_t mod;
-    uint64_t tmp;
-    uint8_t len = 0;
-    do {
-        len++;
-        tmp = 1;
-        for (uint8_t i = 0; i < len; ++i)
-            tmp *= baseofs;
-    } while(num >= tmp);
-    str[len] = 0;
-    do {
-        mod = num % baseofs;
-        uint8_t c = (uint8_t)((mod)/(baseofs/base)+48);
-        if (c > '9')
-            c += 7;
-        str[--len] = c;
-        num -= mod;
-        baseofs *= base;
-    } while(len != 0);
-    return str;
+	uint32_t min_based_over_num = base; 
+	uint8_t j = 0;
+
+	while (min_based_over_num <= num && 
+		UINT_MAX / base > min_based_over_num) 
+		min_based_over_num *= base;
+	if (num <= min_based_over_num)
+		min_based_over_num /= base;	
+
+	while (min_based_over_num > 0) { 
+		int32_t tmp = num / min_based_over_num;
+		num = num % min_based_over_num; 
+		str[j++] = tmp > 9 ? tmp + '0' + 7 : tmp + '0'; 
+		min_based_over_num /= base; 
+	}
+	str[j] = 0;
+	
+	return str;
 }
 
 int memcmp(const void* ptr1, const void* ptr2, size_t num){
