@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdarg.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include "inline.h"
 #include "interrupts.h"
 
@@ -102,7 +103,9 @@ void printk(const char* fmt, ...){
     va_end(args);
 }
  
-void kmain(void* mb_info, uint32_t magic){
+void kmain(void* mb_info){
+    (void) mb_info;
+
     // disable cursor
     outb(0x3D4, 0xA);
     outb(0x3D5, 0x20);

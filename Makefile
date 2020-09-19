@@ -1,6 +1,4 @@
-INTR_DIR := ./interrupts
-INTR_SRC := $(wildcard $(INTR_DIR)/*.asm)
-INTR_OBJ := $(patsubst %.asm,%.o,$(INTR_SRC))
+CFLAGS = -m32 -std=gnu99 -ffreestanding -nostdlib -O2 -Wall -Wextra
 
 all: kernel.bin
 
@@ -13,14 +11,11 @@ qemu: kernel.bin
 qemu-paused: kernel.bin
 	qemu-system-i386 -kernel kernel.bin -s -S
 
-kernel.bin: kernel.o boot.o linker.ld inline.h interrupts.h $(INTR_OBJ)
-	gcc -m32 -T linker.ld -o kernel.bin -ffreestanding -nostdlib -O2 kernel.o boot.o inline.h interrupts.h $(INTR_OBJ) -lgcc
+kernel.bin: kernel.o boot.o isr.o inline.o interrupts.o linker.ld inline.h interrupts.h
+	gcc -T linker.ld $(CFLAGS) -o kernel.bin kernel.o boot.o isr.o inline.o interrupts.o -lgcc
 
-kernel.o: kernel.c
-	gcc -m32 -c kernel.c -o kernel.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
+%.o: %.c
+	gcc $(CFLAGS) -c $< -o $@
 
-boot.o: boot.asm
-	nasm -f elf32 boot.asm -o boot.o
-
-$(INTR_DIR)/%.o: $(INTR_DIR)/%.asm
+%.o: %.asm
 	nasm -f elf32 $< -o $@

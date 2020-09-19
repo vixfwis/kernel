@@ -43,7 +43,6 @@ section .text
 global _start
 _start:
     ; save multiboot header
-    mov ecx, eax
     mov edx, ebx
     ; load gdt
     cli
@@ -59,9 +58,10 @@ reload_cs:
     ; load stack
     mov esp, stack_top
     ; run kmain
-    push ecx
     push edx
     extern kmain
     call kmain
     cli
-    jmp $
+the_end:
+    hlt
+    jmp the_end
